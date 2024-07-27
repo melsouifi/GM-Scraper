@@ -25,15 +25,14 @@ window.data.allData((data)=>{
     data.forEach((item,i ) => {
         // Create HTML content for the <p> element
         const row = 
-        ` 
-          <tr>
+        ` <tr>
         <td scope="col">${i + 1}</td>
         <td scope="col">
         <a target="_blank" alt="${item['Map Url']}" href="${item['Map Url']}">
         ${cutStr(item['Map Url'])}
         </a>
         </td>
-        <td scope="col">${item['Place Name']}
+        <td scope="col">${cutStr(item['Place Name'])}
         </td>
         <td scope="col">${item['Category']}
         </td>
@@ -45,17 +44,16 @@ window.data.allData((data)=>{
         ${cutStr(item['Website'])}
         </a>
         </td>
-    
         <td scope="col">${item['Phone Number']}</td>
         <td scope="col">${cutStr(item['Address'])}</td>
         <td scope="col">${item['Latitude']}</td>
         <td scope="col">${item['Longitude']}</td>
-        <td scope="col">${item['Emails'][0] ? item['Emails'][0] : ''}</td>
-        <td scope="col">${item['Emails'][1] ? item['Emails'][1] : ''}</td>
-        <td scope="col">${item['Emails'][2] ? item['Emails'][2] : ''}</td>
+        <td scope="col">${item['email 1'] ? item['email 1'] : ''}</td>
+        <td scope="col">${item['email 2'] ? item['email 2'] : ''}</td>
+        <td scope="col">${item['email 3'] ? item['email 3'] : ''}</td>
+        <td scope="col"> <a  target="_blank" href="${item['Main Image']}">${cutStr(item['Main Image'])}</a></td>
         <td scope="col">=> <input type="checkbox" class="item-checkbox"/><td/>
       </tr>
-      
     `
 
         // Insert the HTML content into the output div

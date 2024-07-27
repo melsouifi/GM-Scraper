@@ -1,13 +1,13 @@
 const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("node:path");
-
 const saveDataToExcel = require("./main_process/saveDataToExcel");
 const saveReviewsToExcel = require("./main_process/saveReviewsToExcel");
 
 const calcTime = require("./helpers/calcTime");
 const scrapeGM = require("./scrappers/mainData");
+const getEmails = require('./helpers/getEmails')
 const finalFilter = require('./helpers/finalFilter');
-
+const sortByEmails = require('./helpers/sortByEmails');
 const getSomeReviews = require('./main_process/getSomeReviews');
 const getAllReviews = require('./main_process/getAllReviews');
 
@@ -20,7 +20,7 @@ const createWindow = async (width = 800, height = 1200) => {
       preload: path.join(__dirname, "preload.js"),
     },
   });
-  //win.loadFile(file);
+
   return win;
 };
 app.whenReady().then(async () => {
@@ -41,11 +41,11 @@ app.whenReady().then(async () => {
       e.preventDefault();
       const startTime = new Date();
       data = [];
-      const browserPromises = [];
+      
 
       if (citiesSelected.length > 0) {
-          for (let i = 0; i < citiesSelected.length; i += 3) {
-            const chunk = citiesSelected.slice(i, i + 3);
+          for (let i = 0; i < citiesSelected.length; i += 6) {
+            const chunk = citiesSelected.slice(i, i + 6);
 
             // Open multiple browser instances simultaneously
             const promises = chunk.map(async (city) => {
@@ -57,18 +57,15 @@ app.whenReady().then(async () => {
               );
               data.push(...currentData);
             });
-    
-            // Wait for all promises in the current chunk to resolve
              await Promise.all(promises);
-            // Close all browser instances after navigating to URLs in the current chunk
-           // await Promise.all(promises.map(p => p.then(d => data.push(...d))));
 
           }
 
           // filter data and remove  duplicates 
 
           data = finalFilter(data);
-          console.log(data)
+          data = await getEmails(data);
+          data.sort(sortByEmails)
           const endTime = new Date();
 
           const timeExecuted = calcTime(startTime, endTime);
@@ -78,18 +75,6 @@ app.whenReady().then(async () => {
           resultWindow.webContents.send("data-g", data);
           resultWindow.webContents.send("process-time", timeExecuted);
     
-          // promptWindow = new BrowserWindow({
-          //   width: 400,
-          //   height: 200,
-          //   frame: false, // Remove window frame (including close button)
-          //   resizable: false, // Prevent resizing
-          //   movable: true, // Allow the window to be moved
-          //   webPreferences: {
-          //     nodeIntegration: true, // Enable Node.js integration
-          //   },
-          // });
-
-          // promptWindow.load("../pages/flash.html");
 
       } else {
         
@@ -103,7 +88,10 @@ app.whenReady().then(async () => {
            // filter data and remove  duplicates 
 
           data = finalFilter(data);
-        const endTime = new Date();
+
+          data = await getEmails(data);
+          data.sort(sortByEmails)
+          const endTime = new Date();
 
         const timeExecuted = calcTime(startTime, endTime);
         // create new window

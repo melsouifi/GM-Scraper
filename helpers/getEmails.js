@@ -1,11 +1,41 @@
 const puppeteer = require("puppeteer");
 const delay = require("./delay");
+const sanitaizeEmail = require('./sanitaizeEmail');
+module.exports =  getAllEmails = async(data)=>{
+  const browser = await puppeteer.launch({
+    headless:'new'
+  });
+  const page = await browser.newPage();
+  for(let i = 0; i < data.length; i++){
+    data[i]['email 1'] = ''
+    data[i]['email 2'] = ''
+    data[i]['email 3'] = ''
+    let emails;
+    if(data[i]['Website'].length > 0){
+      emails = await getEmails(data[i]['Website'], page)
+      if(emails[0]){
+        data[i]['email 1'] = sanitaizeEmail(emails[0])
+      }
+      if(emails[1]){
+        data[i]['email 2'] = sanitaizeEmail(emails[1])
+      }
+      if(emails[2]){
+        data[i]['email 3'] = sanitaizeEmail(emails[2])
+      }
 
-module.exports = getEmails = async (url, page) => {
+    }
+   
+  }
+  
+  await browser.close()
+  return data
+}
+
+const getEmails = async (url, page) => {
   try {
     await page.goto(url);
     await delay(1);
-    const tags = [ 'span', 'a', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'td', 'th', 'strong', 'em', 'b', 'i', 'u'];
+    const tags = [  'span', 'a', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'td', 'th', 'strong', 'em', 'b', 'i', 'u'];
 
     // const textContent = await page.evaluate(() => {
     //   return document.body.textContent;

@@ -4,7 +4,6 @@ const { v4: uuidv4 } = require("uuid");
 const selectors = require("./selectors");
 const delay = require("../helpers/delay");
 const autoScroll = require("../helpers/autoScroll");
-const getEmails  = require('../helpers/getEmails');
 const scrapeGM = async (searchTerm, displayScraping, countrySelected, city) => {
   const browser = await puppeteer.launch({
     headless: displayScraping,
@@ -16,35 +15,58 @@ const scrapeGM = async (searchTerm, displayScraping, countrySelected, city) => {
 
   const allData = [];
 
- 
+
     countrySelected = countrySelected ? `in ${countrySelected}` : "";
     console.log(city);
     city = city ? `in (${city})` : "";
+
+
     await page.type(
       selectors.searchInput,
       `${searchTerm} ${countrySelected} ${city}`
     );
     await page.click(selectors.searchButton);
-    await delay(3);
+    await delay(2);
 
     await autoScroll(page, selectors.resultsBox);
+    let allUrls = [];
 
-    // collect all urls for each section
-    const allUrls = await page.evaluate(() => {
-      let allUrls = Array.from(document.querySelectorAll("a.hfpxzc"));
-      return allUrls.map((url) => url.href);
+    const manyResults = await page.evaluate(()=>{
+      if(document.querySelectorAll("a.hfpxzc").length > 0) return true;
+      return false;
+    })
+
+    if(manyResults){
+       // collect all urls for each section
+     allUrls = await page.evaluate(() => {
+      let urls = Array.from(document.querySelectorAll("a.hfpxzc"));
+      return urls.map((url) => url.href);
     });
+    }else{
+      await delay(2)
+      const url = page.url()
+      allUrls.push(url)
+    }
+   
 
     for (let j = 0; j < allUrls.length; j++) {
       await page.goto(allUrls[j]);
-      await delay(2);
-      
+      await delay(4);
+    
       try {
         placeName = await page.$eval(selectors.placeName, (el) =>
           el.textContent.trim()
         );
       } catch (e) {
         placeName = "";
+      }
+
+      try {
+        mainImage = await page.$eval(selectors.mainImage, (el) =>
+          el.src.trim()
+        );
+      } catch (e) {
+        mainImage = "";
       }
       let category;
       try{
@@ -115,19 +137,13 @@ const scrapeGM = async (searchTerm, displayScraping, countrySelected, city) => {
       } catch (e) {
         phoneNumber = "";
       }
-      // const url =  page.url()
+      const url =  page.url()
     
-      // const long_lat = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+      const long_lat = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
 
-      // const latitude = long_lat[1];
-      // const longitude = long_lat[2];
+      const latitude = long_lat[1];
+      const longitude = long_lat[2];
 
-      // navigate to website to coolect emails 
-      let emails = [];
-      if(website){
-        emails = await getEmails(website, page);
-
-      }
       const data = {
         ["Map Url"]: allUrls[j],
         ["Place Name"]: placeName,
@@ -137,28 +153,14 @@ const scrapeGM = async (searchTerm, displayScraping, countrySelected, city) => {
         ["Website"]: website,
         ["Phone Number"]: phoneNumber,
         ["Address"]: fullAddress,
-        // ['Latitude']: latitude,
-        // ['Longitude']: longitude,
-        ['Emails']: emails,
-        ['City']: `${city}`
+       ['Latitude']: latitude,
+       ['Longitude']: longitude,
+        //['City']: `${city}`,
+        ['Main Image'] : mainImage
        // ["_id"]: uuidv4(),
       }
-      if(emails[0]){
-        data['emails 1'] = emails[0]
-      }
-      if(emails[1]){
-        data['emails 2'] = emails[1]
-      }
-      if(emails[2]){
-        data['emails 3'] = emails[2]
-      }
-
-    if(emails.length > 0){
-      allData.unshift(data)
-    }else{
-      allData.push(data);
-    }
-      
+    
+      allData.push(data)
     }
     
     await browser.close();
