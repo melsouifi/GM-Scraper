@@ -7,11 +7,13 @@ const submitButton = document.querySelector('button[type="submit"]');
 const spinner = document.querySelector(".spinner");
 const countrySelect = document.getElementById("country-select");
 const citiesBox = document.querySelector("#cities-box");
-
+const searchCityBar = document.getElementById("search-city");
 // enable search by country
 document
   .getElementById("search-by-country-checkbox")
   .addEventListener("click", () => {
+    searchCityBar.classList.add("hide");
+    searchCityBar.value = "";
     if (document.getElementById("select-all-section")) {
       document.getElementById("select-all-section").remove();
     }
@@ -74,7 +76,10 @@ countrySelect.addEventListener("change", (e) => {
   let citiesHtml = ``;
   const countryId = e.target.selectedOptions[0].id;
   allCountries[countryId].cities.forEach((city) => {
-    citiesHtml += `<div><input type="checkbox"/ name="city" value="${city}"> ${city}</div>`;
+    citiesHtml += `<div class="city" id="${city.replaceAll(
+      " ",
+      "-"
+    )}"><input type="checkbox" name="city" value="${city}"/> ${city}</div>`;
   });
   if (document.getElementById("select-all-section")) {
     document.getElementById("select-all-section").remove();
@@ -90,6 +95,46 @@ countrySelect.addEventListener("change", (e) => {
 
   const selectAllCheckbox = document.getElementById("select-all");
 
+  // display  city search
+
+  searchCityBar.classList.remove("hide");
+  searchCityBar.addEventListener("keyup", (e) => {
+    const citySearch = e.target.value.trim();
+    if (citySearch === "") {
+      return;
+    }
+
+    const allCities = document.querySelectorAll(".city");
+    allCities.forEach((city) => {
+      if (
+        city.textContent.trim() !== "" &&
+        city.textContent
+          .toLocaleLowerCase()
+          .includes(citySearch.toLocaleLowerCase())
+      ) {
+        document
+          .querySelector(
+            `#${city.textContent
+              .trim()
+              .replaceAll(" ", "-")
+              .replace(/\d+/g, "")}`
+          )
+          .scrollIntoView({ behavior: "smooth" });
+      }
+      if (
+        city.textContent.toLocaleLowerCase().trim() ===
+        citySearch.toLocaleLowerCase()
+      ) {
+        document.querySelector(
+          `#${city.textContent.trim().replaceAll(" ", "-").replace(/\d+/g, "")}`
+        ).style.color = "black";
+        document.querySelector(
+          `#${city.textContent.trim().replaceAll(" ", "-").replace(/\d+/g, "")}`
+        ).style.fontWeight = "bold";
+      }
+    });
+  });
+
   selectAllCheckbox.addEventListener("click", (e) => {
     const allCities = document.querySelectorAll('input[name="city"]');
     for (let i = 0; i < allCities.length; i++) {
@@ -97,26 +142,35 @@ countrySelect.addEventListener("change", (e) => {
     }
   });
 
-
-
   // search bar for cities
 
-// document.getElementById("searchCity").addEventListener("input", function () {
-//   let searchValue = this.value.trim().toLowerCase();
-//   let items = citiesBox.querySelectorAll("input[name='city']");
+  // document.getElementById("searchCity").addEventListener("input", function () {
+  //   let searchValue = this.value.trim().toLowerCase();
+  //   let items = citiesBox.querySelectorAll("input[name='city']");
 
-//   for (let item of items) {
-//     let text = item.textContent.toLowerCase();
-//     if (text.includes(searchValue)) {
-//       // item.style.display = "block";
-//       // Scroll to the matched word
-//       item.scrollIntoView({ behavior: "smooth", block: "center" });
-//     }
-//     // } else {
-//     //     item.style.display = "none";
-//     // }
-//   }
-// });
+  //   for (let item of items) {
+  //     let text = item.textContent.toLowerCase();
+  //     if (text.includes(searchValue)) {
+  //       // item.style.display = "block";
+  //       // Scroll to the matched word
+  //       item.scrollIntoView({ behavior: "smooth", block: "center" });
+  //     }
+  //     // } else {
+  //     //     item.style.display = "none";
+  //     // }
+  //   }
+  // });
 });
 
+ipcRenderer.on("update_available", () => {
+  alert("A new update is available. Downloading now...");
+});
 
+ipcRenderer.on("update_downloaded", () => {
+  const userResponse = confirm(
+    "Update downloaded. It will be installed on restart. Restart now?"
+  );
+  if (userResponse) {
+    ipcRenderer.send("restart_app");
+  }
+});

@@ -11,15 +11,15 @@
   "build": {
     "appId": "gm_app",
     "win": {
-        "icon": "images/map.ico"
+      "icon": "images/map.ico"
     },
     "mac": {
-        "icon": "images/map.ico"
+      "icon": "images/map.ico"
     },
     "linux": {
-        "icon": "images/map.ico"
+      "icon": "images/map.ico"
     }
-},
+  },
   "author": "Mostafa Elsouifi",
   "license": "MIT",
   "devDependencies": {
@@ -35,8 +35,10 @@
   "dependencies": {
     "axios": "^1.6.8",
     "bootstrap": "^5.3.3",
+    "electron-log": "^5.2.0",
     "electron-prompt": "^1.7.0",
     "electron-squirrel-startup": "^1.0.0",
+    "electron-updater": "^6.3.9",
     "exceljs": "^4.4.0",
     "puppeteer": "^22.3.0",
     "uuid": "^9.0.1",

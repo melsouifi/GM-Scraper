@@ -1,54 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="../css/main.css" />
     <title>Result</title>
     <style>
-    a {
-      background-color:white;
-    }
+      a {
+        background-color: white;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="page-wrapper">
-        <div class="d-flex justify-content-between align-items-center gap-3 mb-5">
-          <p class="fs-4 d-block" id="time-section">Time Executed  : <strong class="fs-3"></strong></p>
-            <p class="fs-4" id="rows-num">Number Of Data rows collected : <strong class="fs-3"></strong></p>
-            <div>
-                <button class="btn btn-success" id="xl-btn">save to Excel</button>
-                <button class="btn btn-warning" id="scrapReviewsBtn">scrape reviews</button>
-            </div>
-            
+      <div class="d-flex justify-content-between align-items-center gap-3 mb-5">
+        <p class="fs-4 d-block" id="time-section">
+          Time Executed : <strong class="fs-3"></strong>
+        </p>
+        <p class="fs-4" id="rows-num">
+          Number Of Data rows collected : <strong class="fs-3"></strong>
+        </p>
+        <div>
+          <button class="btn btn-success" id="xl-btn">save to Excel</button>
+          <button class="btn btn-warning" id="scrapReviewsBtn">
+            scrape reviews
+          </button>
         </div>
-        <table class="table">
-            <thead>
-              <tr>
-                <th scope="col">#</th>
-                <th scope="col">Map Url</th>
-                <th scope="col">Place Name</th>
-                <th scope="col">Category</th>
-                <th scope="col">Rating</th>
-                <th scope="col">Reviews</th>
-                <th scope="col">website</th>
-                <th scope="col">Phone number</th>
-                <th scope="col">Address</th>
-                <th scope="col">Latitude</th>
-                <th scope="col">Longitude</th>
-                <th scope="col">Email 1</th>
-                <th scope="col">Email 2</th>
-                <th scope="col">Email 3</th>
-                <th scope="col">Main Image</th>
-                <th scope="col">scrape all reviews <input type="checkbox" class="select-all-items-checkbox" /> </th>
-              </tr>
-            </thead>
-            <tbody class="fs-6">
-            
-            </tbody>
-          </table>
+      </div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Map Url</th>
+            <th scope="col">Place Name</th>
+            <th scope="col">Category</th>
+            <th scope="col">Rating</th>
+            <th scope="col">Reviews</th>
+            <th scope="col">website</th>
+            <th scope="col" style="white-space: nowrap">Phone number</th>
+            <th scope="col">Address</th>
+            <!-- <th scope="col">Latitude</th>
+            <th scope="col">Longitude</th> -->
+            <th scope="col" style="white-space: nowrap">Email 1</th>
+            <th scope="col" style="white-space: nowrap">Email 2</th>
+            <th scope="col" style="white-space: nowrap">Email 3</th>
+            <th scope="col">Main Image</th>
+            <th scope="col" style="white-space: nowrap">
+              scrape all reviews
+              <input type="checkbox" class="select-all-items-checkbox" />
+            </th>
+          </tr>
+        </thead>
+        <tbody class="fs-6"></tbody>
+      </table>
     </div>
 
     <script src="../renderer/resultPage.js"></script>
-</body>
+  </body>
 </html>

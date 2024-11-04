@@ -4,55 +4,65 @@ const { v4: uuidv4 } = require("uuid");
 const selectors = require("./selectors");
 const delay = require("../helpers/delay");
 const autoScroll = require("../helpers/autoScroll");
+
 const scrapeGM = async (searchTerm, displayScraping, countrySelected, city) => {
+  const allData = [];
   const browser = await puppeteer.launch({
     headless: displayScraping,
   });
   const page = await browser.newPage();
 
   try {
-  await page.goto("https://www.google.com/maps");
+    await page.goto("https://www.google.com/maps");
+    await delay(3);
+    //choose english language
+    await page.click(".google-symbols");
+    await delay(3);
+    await page.click('button[jsaction="settings.languages"]');
+    await delay(3);
+    await page.evaluate(() => {
+      document.querySelectorAll("a")[11].classList.add("english");
+    });
+    await page.click("a.english");
 
-  const allData = [];
-
+    await delay(3);
 
     countrySelected = countrySelected ? `in ${countrySelected}` : "";
     console.log(city);
     city = city ? `in (${city})` : "";
-
 
     await page.type(
       selectors.searchInput,
       `${searchTerm} ${countrySelected} ${city}`
     );
     await page.click(selectors.searchButton);
-    await delay(2);
+    await delay(3);
 
     await autoScroll(page, selectors.resultsBox);
     let allUrls = [];
 
-    const manyResults = await page.evaluate(()=>{
-      if(document.querySelectorAll("a.hfpxzc").length > 0) return true;
+    const manyResults = await page.evaluate(() => {
+      if (document.querySelectorAll("a.hfpxzc").length > 0) return true;
       return false;
-    })
-
-    if(manyResults){
-       // collect all urls for each section
-     allUrls = await page.evaluate(() => {
-      let urls = Array.from(document.querySelectorAll("a.hfpxzc"));
-      return urls.map((url) => url.href);
     });
-    }else{
-      await delay(2)
-      const url = page.url()
-      allUrls.push(url)
+
+    if (manyResults) {
+      // collect all urls for each section
+      allUrls = await page.evaluate(() => {
+        let urls = Array.from(document.querySelectorAll("a.hfpxzc"));
+        return urls.map((url) => url.href);
+      });
     }
-   
+    // } else {
+    //   await delay(2);
+    //   const url = page.url();
+    //   allUrls.push(url);
+    // }
 
     for (let j = 0; j < allUrls.length; j++) {
       await page.goto(allUrls[j]);
-      await delay(4);
-    
+      await delay(2);
+
       try {
         placeName = await page.$eval(selectors.placeName, (el) =>
           el.textContent.trim()
@@ -69,15 +79,15 @@ const scrapeGM = async (searchTerm, displayScraping, countrySelected, city) => {
         mainImage = "";
       }
       let category;
-      try{
-        const selector = await page.evaluate(()=>{
-          if(document.querySelector('span [jsaction="pane.wfvdle7.category"]')) return 'span [jsaction="pane.wfvdle7.category"]'
-          return 'span [jsaction="pane.wfvdle8.category"]'
-        })
-        
-        category = await page.$eval(selector, (el)=>el.textContent.trim())
-      }catch(e){
-        category = ''
+      try {
+        const selector = await page.evaluate(() => {
+          if (document.querySelector(".DkEaL")) return ".DkEaL";
+          return ".DkEaL";
+        });
+
+        category = await page.$eval(selector, (el) => el.textContent.trim());
+      } catch (e) {
+        category = "";
       }
 
       let rating;
@@ -115,7 +125,6 @@ const scrapeGM = async (searchTerm, displayScraping, countrySelected, city) => {
         if (website.includes("business.google.com")) {
           website = "";
         }
-
       } catch (e) {
         website = "";
       }
@@ -137,12 +146,12 @@ const scrapeGM = async (searchTerm, displayScraping, countrySelected, city) => {
       } catch (e) {
         phoneNumber = "";
       }
-      const url =  page.url()
-    
-      const long_lat = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+      // const url = page.url();
 
-      const latitude = long_lat[1];
-      const longitude = long_lat[2];
+      // const long_lat = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+
+      // const latitude = long_lat[1];
+      // const longitude = long_lat[2];
 
       const data = {
         ["Map Url"]: allUrls[j],
@@ -153,25 +162,24 @@ const scrapeGM = async (searchTerm, displayScraping, countrySelected, city) => {
         ["Website"]: website,
         ["Phone Number"]: phoneNumber,
         ["Address"]: fullAddress,
-       ['Latitude']: latitude,
-       ['Longitude']: longitude,
-        //['City']: `${city}`,
-        ['Main Image'] : mainImage
-       // ["_id"]: uuidv4(),
-      }
-    
-      allData.push(data)
+        // ["Latitude"]: latitude,
+        // ["Longitude"]: longitude,
+        ["City"]: `${city}`,
+        ["Main Image"]: mainImage,
+        // ["_id"]: uuidv4(),
+      };
+
+      allData.push(data);
     }
-    
+
     await browser.close();
 
     return allData;
   } catch (e) {
     await browser.close();
     console.log(e);
-    return [];
+    return allData;
   }
-
 };
 
 module.exports = scrapeGM;
