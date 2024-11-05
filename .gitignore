@@ -1,8 +1,8 @@
-node_modules
-out
-seeds
+node_modules/
+out/
+seeds/
 screenshots
 
-images
+images/
 
 
