@@ -9,7 +9,8 @@
     "make": "electron-forge make"
   },
   "build": {
-    "appId": "gm_app",
+    "appId": "com.insidedatasolutions.gmapp",
+    "productName": "GM Scraper",
     "win": {
       "icon": "images/map.ico"
     },
@@ -18,6 +19,11 @@
     },
     "linux": {
       "icon": "images/map.ico"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "your-github-username",
+      "repo": "your-repo-name"
     }
   },
   "author": "Mostafa Elsouifi",

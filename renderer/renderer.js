@@ -161,16 +161,3 @@ countrySelect.addEventListener("change", (e) => {
   //   }
   // });
 });
-
-ipcRenderer.on("update_available", () => {
-  alert("A new update is available. Downloading now...");
-});
-
-ipcRenderer.on("update_downloaded", () => {
-  const userResponse = confirm(
-    "Update downloaded. It will be installed on restart. Restart now?"
-  );
-  if (userResponse) {
-    ipcRenderer.send("restart_app");
-  }
-});

@@ -30,7 +30,7 @@ const createWindow = async (width = 800, height = 1200) => {
 
   // Check for updates after the window has been created
 
-  mainWindow.once("ready-to-show", () => {
+  win.once("ready-to-show", () => {
     autoUpdater.checkForUpdatesAndNotify();
   });
 
@@ -152,13 +152,13 @@ app.whenReady().then(async () => {
   autoUpdater.on("update-available", () => {
     log.info("Update available.");
     // Notify the user that an update is available
-    mainWindow.webContents.send("update_available");
+    win.webContents.send("update_available");
   });
 
   autoUpdater.on("update-downloaded", () => {
     log.info("Update downloaded.");
     // Notify the user that the update will be installed
-    mainWindow.webContents.send("update_downloaded");
+    win.webContents.send("update_downloaded");
   });
 
   ipcMain.on("restart_app", () => {
